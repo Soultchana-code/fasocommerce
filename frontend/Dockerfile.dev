@@ -1,0 +1,18 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# On copie uniquement les fichiers de dépendances d'abord
+COPY package.json package-lock.json ./
+
+# Installation propre
+RUN npm install
+
+# Le reste du code est monté via volume dans docker-compose
+# donc on n'a pas besoin de COPY . . ici pour le mode dev, 
+# mais c'est bien de le laisser pour la structure
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
