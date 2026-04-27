@@ -17,6 +17,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'password', 'password_confirm',
         ]
         extra_kwargs = {
+            'email': {'required': False, 'allow_blank': True},
+            'phone_number': {'required': True},
             'role': {'default': User.Role.CLIENT},
         }
 
@@ -32,6 +34,14 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('password_confirm')
+        
+        # Bypass cache navigateur : si l'email est manquant, on en génère un
+        if not validated_data.get('email'):
+            phone = validated_data.get('phone_number')
+            # Nettoyage du numéro pour l'email
+            clean_phone = "".join(filter(str.isdigit, phone))
+            validated_data['email'] = f"user_{clean_phone}@fasocommerce.bf"
+            
         password = validated_data.pop('password')
         user = User(**validated_data)
         user.set_password(password)
@@ -67,7 +77,21 @@ class OTPVerifySerializer(serializers.Serializer):
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    username_field = 'phone_number'
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # On rend le champ identifiant (email) optionnel pour permettre phone_number à la place
+        self.fields[self.username_field].required = False
+
+    # On ajoute aussi phone_number explicitement
+    phone_number = serializers.CharField(required=False)
+
+    def validate(self, attrs):
+        # On récupère l'identifiant peu importe le nom
+        identifier = attrs.get("email") or attrs.get("phone_number") or attrs.get("username")
+        if identifier:
+            attrs[self.username_field] = identifier
+        
+        return super().validate(attrs)
 
     @classmethod
     def get_token(cls, user):

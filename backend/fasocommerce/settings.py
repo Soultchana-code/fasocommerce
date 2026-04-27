@@ -7,7 +7,7 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-production')
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-faso-commerce-premium-key-secure-2026-very-long-and-safe')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
@@ -143,6 +143,12 @@ CORS_ALLOW_CREDENTIALS = True
 # URLs de l'application (utilisées par les services de paiement pour les webhooks/redirections)
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:3000')
 BACKEND_URL = config('BACKEND_URL', default='http://localhost:8000')
+
+# Auth Backends
+AUTHENTICATION_BACKENDS = [
+    'apps.users.backends.EmailOrPhoneBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'

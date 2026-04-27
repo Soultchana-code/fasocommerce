@@ -68,12 +68,17 @@ class OrderDetailView(generics.RetrieveUpdateAPIView):
 class GroupBuySessionListView(generics.ListCreateAPIView):
     """Liste des sessions d'achat groupé ouvertes."""
     serializer_class = GroupBuySessionSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         qs = GroupBuySession.objects.select_related('product', 'organizer').prefetch_related('participations')
         status_filter = self.request.query_params.get('status', 'open')
-        return qs.filter(status=status_filter)
+        product_id = self.request.query_params.get('product')
+        
+        qs = qs.filter(status=status_filter)
+        if product_id:
+            qs = qs.filter(product_id=product_id)
+        return qs
 
     @extend_schema(tags=['Orders'])
     def get(self, request, *args, **kwargs):

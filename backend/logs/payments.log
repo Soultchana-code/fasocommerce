@@ -1,0 +1,16 @@
+[2026-04-15 14:01:16,485] INFO apps.payments [OrangeMoney] Initiation paiement — Ref: FC-EDDA7F2C, Montant: 30000.0 XOF
+[2026-04-15 14:01:17,594] INFO apps.payments [OrangeMoney] Réponse initiation — {'code': 41, 'message': 'Invalid credentials', 'description': 'The requested service needs credentials, but the ones provided were invalid'}
+[2026-04-15 14:10:03,711] INFO apps.payments [OrangeMoney] Initiation paiement — Ref: FC-C50E08DD, Montant: 60000.0 XOF
+[2026-04-15 14:10:04,355] INFO apps.payments [OrangeMoney] Réponse initiation — {'code': 41, 'message': 'Invalid credentials', 'description': 'The requested service needs credentials, but the ones provided were invalid'}
+[2026-04-15 16:15:28,617] INFO apps.payments [OrangeMoney] Initiation paiement — Ref: FC-74D8BB69, Montant: 30000.0 XOF
+[2026-04-15 16:15:29,521] INFO apps.payments [OrangeMoney] Réponse initiation — {'code': 41, 'message': 'Invalid credentials', 'description': 'The requested service needs credentials, but the ones provided were invalid'}
+[2026-04-15 23:19:22,863] INFO apps.payments [OrangeMoney] Initiation paiement — Ref: FC-53065526, Montant: 60000.0 XOF
+[2026-04-15 23:19:54,760] ERROR apps.payments [OrangeMoney] Erreur réseau — HTTPSConnectionPool(host='api.orange.com', port=443): Max retries exceeded with url: /orange-money-webpay/bf/v1/webpayment (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.orange.com', port=443) at 0x76e52ccd6f10>, 'Connection to api.orange.com timed out. (connect timeout=15)'))
+[2026-04-22 09:34:48,841] INFO apps.payments [OrangeMoney] Initiation paiement — Ref: FC-AA705EEF, Montant: 30000.0 XOF
+[2026-04-22 09:34:49,555] INFO apps.payments [OrangeMoney] Réponse initiation — {'code': 41, 'message': 'Invalid credentials', 'description': 'The requested service needs credentials, but the ones provided were invalid'}
+[2026-04-22 18:26:21,750] INFO apps.payments [MoovMoney] Initiation paiement — Ref: FC-058EF633, Montant: 50000.0 XOF
+[2026-04-22 18:26:21,877] ERROR apps.payments [MoovMoney] Erreur réseau — HTTPSConnectionPool(host='openapi.moov-africa.bf', port=443): Max retries exceeded with url: /v1/cashIn (Caused by NameResolutionError("HTTPSConnection(host='openapi.moov-africa.bf', port=443): Failed to resolve 'openapi.moov-africa.bf' ([Errno -2] Name or service not known)"))
+[2026-04-22 18:28:11,162] INFO apps.payments [OrangeMoney] Initiation paiement — Ref: FC-96DBF9A9, Montant: 8500.0 XOF
+[2026-04-22 18:28:11,992] INFO apps.payments [OrangeMoney] Réponse initiation — {'code': 41, 'message': 'Invalid credentials', 'description': 'The requested service needs credentials, but the ones provided were invalid'}
+[2026-04-22 20:12:07,381] INFO apps.payments [OrangeMoney] Initiation paiement — Ref: FC-A20FBEE1, Montant: 6000.0 XOF
+[2026-04-22 20:12:07,998] INFO apps.payments [OrangeMoney] Réponse initiation — {'code': 41, 'message': 'Invalid credentials', 'description': 'The requested service needs credentials, but the ones provided were invalid'}

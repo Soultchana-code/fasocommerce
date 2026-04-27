@@ -1,0 +1,22 @@
+name: fasocommerce_mobile
+description: Faso-Commerce Mobile App - E-commerce solidaire au Burkina Faso.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.1.0        # Pour les appels API au backend Django
+  provider: ^6.1.1    # Gestion d'état
+  shared_preferences: ^2.2.2 # Stockage local du Token JWT
+  intl: ^0.18.1       # Formatage des prix FCFA
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

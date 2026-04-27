@@ -29,6 +29,15 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
     permission_classes = [permissions.AllowAny]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            print(f"ERREUR VALIDATION INSCRIPTION : {serializer.errors}")
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return response.Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     @extend_schema(tags=['Auth'])
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, context={'request': request})
@@ -56,7 +65,21 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
     @extend_schema(tags=['Auth'])
     def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            # On récupère l'utilisateur pour renvoyer ses infos de base
+            # L'identifiant peut être dans 'email' ou 'phone_number' ou 'username' selon le client
+            identifier = request.data.get('email') or request.data.get('phone_number') or request.data.get('username')
+            from django.db.models import Q
+            user = User.objects.get(Q(email=identifier) | Q(phone_number=identifier))
+            response.data['user'] = {
+                'id': user.id,
+                'email': user.email,
+                'phone_number': user.phone_number,
+                'role': user.role,
+                'full_name': user.get_full_name()
+            }
+        return response
 
 
 class OTPRequestView(APIView):

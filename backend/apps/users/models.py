@@ -5,19 +5,23 @@ import string
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, phone_number, password=None, **extra_fields):
-        if not phone_number:
-            raise ValueError("Le numéro de téléphone est obligatoire.")
-        user = self.model(phone_number=phone_number, **extra_fields)
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError("L'adresse e-mail est obligatoire.")
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, phone_number, password=None, **extra_fields):
+    def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('role', User.Role.ADMIN)
-        return self.create_user(phone_number, password, **extra_fields)
+        if extra_fields.get('phone_number') is None:
+            # Pour un superuser admin, on peut mettre un numéro bidon ou le demander
+            extra_fields['phone_number'] = f"admin_{random.randint(1000, 9999)}"
+        return self.create_user(email, password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -27,7 +31,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ADMIN = 'admin', 'Administrateur'
 
     phone_number = models.CharField(max_length=20, unique=True, verbose_name="Numéro de téléphone")
-    email = models.EmailField(blank=True, null=True, unique=True, verbose_name="Email")
+    email = models.EmailField(unique=True, verbose_name="Email")
     first_name = models.CharField(max_length=100, blank=True, verbose_name="Prénom")
     last_name = models.CharField(max_length=100, blank=True, verbose_name="Nom")
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.CLIENT, verbose_name="Rôle")
@@ -49,8 +53,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'phone_number'
-    REQUIRED_FIELDS = []
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['phone_number']
 
     class Meta:
         db_table = 'users'

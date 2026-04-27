@@ -38,7 +38,7 @@ class ProductListView(generics.ListCreateAPIView):
     Liste des produits — Supporte le mode basse consommation.
     En retournant uniquement les miniatures pour les zones à faible connectivité.
     """
-    permission_classes = [IsVendorOrAdmin]
+    permission_classes = [permissions.AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category', 'is_essential', 'status', 'vendor']
     search_fields = ['name', 'description']
@@ -53,9 +53,9 @@ class ProductListView(generics.ListCreateAPIView):
         return qs
 
     def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return ProductDetailSerializer
         # Mode basse consommation : paramètre ?low_bandwidth=true → miniature uniquement
-        if self.request.query_params.get('low_bandwidth') == 'true':
-            return ProductListSerializer
         return ProductListSerializer
 
     @extend_schema(
@@ -73,11 +73,21 @@ class ProductListView(generics.ListCreateAPIView):
         return super().post(request, *args, **kwargs)
 
 
+class VendorProductListView(generics.ListAPIView):
+    """Liste des produits appartenant au vendeur connecté — Dashboard."""
+    serializer_class = ProductListSerializer
+    permission_classes = [permissions.IsAuthenticated, IsVendorOrAdmin]
+
+    @extend_schema(tags=['Products (Vendor)'])
+    def get_queryset(self):
+        return Product.objects.filter(vendor=self.request.user).order_by('-created_at')
+
+
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Détail, mise à jour et suppression d'un produit."""
     queryset = Product.objects.select_related('category', 'vendor').prefetch_related('images', 'reviews__user')
     serializer_class = ProductDetailSerializer
-    permission_classes = [IsVendorOrAdmin]
+    permission_classes = [permissions.AllowAny]
     lookup_field = 'slug'
 
     @extend_schema(tags=['Products'])
@@ -101,7 +111,11 @@ class ProductReviewCreateView(generics.CreateAPIView):
     @extend_schema(tags=['Products'])
     def perform_create(self, serializer):
         product_slug = self.kwargs['slug']
+        from django.db import IntegrityError
+        from rest_framework.exceptions import ValidationError
+        
         product = Product.objects.get(slug=product_slug)
+        
         # Vérifie si l'utilisateur a commandé ce produit
         from apps.orders.models import OrderItem
         is_verified = OrderItem.objects.filter(
@@ -109,4 +123,8 @@ class ProductReviewCreateView(generics.CreateAPIView):
             product=product,
             order__status='delivered'
         ).exists()
-        serializer.save(user=self.request.user, product=product, is_verified_purchase=is_verified)
+        
+        try:
+            serializer.save(user=self.request.user, product=product, is_verified_purchase=is_verified)
+        except IntegrityError:
+            raise ValidationError({"detail": "Vous avez déjà laissé un avis sur ce produit."})

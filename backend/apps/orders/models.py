@@ -26,7 +26,11 @@ class GroupBuySession(models.Model):
         max_digits=12, decimal_places=2,
         verbose_name="Prix unitaire de gros (FCFA)"
     )
-    expires_at = models.DateTimeField(verbose_name="Date d'expiration")
+    expires_at = models.DateTimeField(
+        verbose_name="Date d'expiration",
+        default=lambda: timezone.now() + timezone.timedelta(days=7),
+        blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     confirmed_at = models.DateTimeField(null=True, blank=True)
 
